@@ -1,1 +1,4 @@
 target
+
+build_script/builds/*
+build_script/logs/*
