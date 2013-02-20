@@ -19,12 +19,25 @@
  */
 package org.graylog2.radio.inputs;
 
+import org.graylog2.radio.Radio;
+import org.graylog2.radio.inputs.tcp.TCPInput;
+import org.graylog2.radio.inputs.udp.UDPInput;
+
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
  */
-public interface Input {
+public class InputFactory {
+   
+    public static Input get(Radio radio, InputConfiguration config) throws NoInputFoundException {
 
-    public InputConfiguration getConfiguration();
-    public int getStartedAt();
+        switch(config.getType()) {
+            case UDP:
+                return new UDPInput(radio, config);
+            case TCP:
+                return new TCPInput(radio, config);
+        }
+        
+        throw new NoInputFoundException();
+    }
     
 }

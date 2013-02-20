@@ -22,9 +22,6 @@ package org.graylog2.radio.inputs;
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
  */
-public interface Input {
-
-    public InputConfiguration getConfiguration();
-    public int getStartedAt();
+public class NoInputFoundException extends Exception {
     
 }

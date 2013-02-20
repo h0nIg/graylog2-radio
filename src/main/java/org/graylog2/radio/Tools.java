@@ -43,4 +43,8 @@ public class Tools {
         }
     }
     
+    public static int getUTCTimestamp() {
+       return (int) (System.currentTimeMillis()/1000);
+    }
+    
 }

@@ -19,11 +19,21 @@
  */
 package org.graylog2.radio;
 
+import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.graylog2.radio.buffers.Buffer;
 import org.graylog2.radio.inputs.InputConfiguration;
+import org.graylog2.radio.inputs.Input;
+import org.graylog2.radio.inputs.InputFactory;
+import org.graylog2.radio.inputs.NoInputFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +46,22 @@ public class Radio {
     
     private Configuration configuration;
     
+    private Connection brokerConnection;
+    
     private final Buffer buffer;
     
     private AtomicInteger bufferWatermark = new AtomicInteger();
     
+    final ExecutorService inputThreadPool;
+    final Set<Input> activeInputs = Sets.newHashSet();
+    
     public Radio() {
         buffer = new Buffer(this);
+        
+        inputThreadPool = Executors.newCachedThreadPool(
+                new ThreadFactoryBuilder()
+                .setNameFormat("inputs-%d")
+                .build());
     }
     
     public void initialize(List<InputConfiguration> initialInputs) throws IOException {
@@ -49,10 +69,16 @@ public class Radio {
         buffer.initialize();
         
         // Connect to AMQP broker.
+        brokerConnection = getClusterBroker();
         
         // Spawn inputs.
-        for (InputConfiguration input : initialInputs) {
-            LOG.info("Initializing input <{}>", input);
+        for (InputConfiguration config : initialInputs) {
+            LOG.info("Initializing input <{}>", config);
+            try {
+                spawnInput(InputFactory.get(this, config));
+            } catch(NoInputFoundException e) {
+                LOG.warn("No input for type [{}] available. Skipping.", config.getType());
+            }
         }
     }
     
@@ -70,6 +96,25 @@ public class Radio {
     
     public AtomicInteger bufferWatermark() {
         return bufferWatermark;
+    }
+    
+    public synchronized void spawnInput(Input input) {
+        activeInputs.add(input);
+        inputThreadPool.submit((Runnable) input);
+    }
+    
+    public Connection getClusterBroker() throws IOException {
+        if (brokerConnection == null || !brokerConnection.isOpen()) {
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost(configuration.getAMQPHost());
+            factory.setPort(configuration.getAMQPPort());
+            factory.setUsername(configuration.getAMQPUser());
+            factory.setPassword(configuration.getAMQPPassword());
+            
+            brokerConnection = factory.newConnection();
+        }
+        
+        return brokerConnection;
     }
     
 }

@@ -17,14 +17,32 @@
  * along with Graylog2.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.graylog2.radio.inputs;
+package org.graylog2.radio.inputs.udp;
+
+import org.graylog2.radio.Radio;
+import org.graylog2.radio.inputs.InputConfiguration;
+import org.graylog2.radio.inputs.InputType;
+import org.graylog2.radio.inputs.MessageDispatcher;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.Channels;
 
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
  */
-public interface Input {
+public class UDPPipelineFactory implements ChannelPipelineFactory {
 
-    public InputConfiguration getConfiguration();
-    public int getStartedAt();
+    private final Radio radio;
+    private final InputConfiguration config;
+
+    public UDPPipelineFactory(Radio radio, InputConfiguration config) {
+        this.radio = radio;
+        this.config = config;
+    }
+
+    @Override
+    public ChannelPipeline getPipeline() throws Exception {
+        return Channels.pipeline(new MessageDispatcher(radio, config));
+    }
     
 }
