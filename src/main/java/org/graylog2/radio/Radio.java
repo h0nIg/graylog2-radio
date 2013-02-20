@@ -69,7 +69,7 @@ public class Radio {
         buffer.initialize();
         
         // Connect to AMQP broker.
-        brokerConnection = getClusterBroker();
+        brokerConnection = getBroker();
         
         // Spawn inputs.
         for (InputConfiguration config : initialInputs) {
@@ -103,7 +103,7 @@ public class Radio {
         inputThreadPool.submit((Runnable) input);
     }
     
-    public Connection getClusterBroker() throws IOException {
+    public Connection getBroker() throws IOException {
         if (brokerConnection == null || !brokerConnection.isOpen()) {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(configuration.getAMQPHost());

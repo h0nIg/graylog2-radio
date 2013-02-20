@@ -21,6 +21,7 @@ package org.graylog2.radio.buffers.processors;
 
 import com.lmax.disruptor.EventHandler;
 import org.graylog2.radio.Radio;
+import org.graylog2.radio.amqp.emitter.AMQPEmitter;
 import org.graylog2.radio.buffers.MessageEvent;
 import org.graylog2.radio.messages.RawMessage;
 import org.slf4j.Logger;
@@ -37,14 +38,14 @@ public class BufferProcessor implements EventHandler<MessageEvent> {
     private final long ordinal;
     private final long numberOfConsumers;
     
-    //private final AMQPEmitter emitter;
+    private final AMQPEmitter emitter;
 
     public BufferProcessor(Radio radio, final long ordinal, final long numberOfConsumers) {
         this.ordinal = ordinal;
         this.numberOfConsumers = numberOfConsumers;
         this.radio = radio;
         
-        //this.emitter = new AMQPEmitter(acceptor, acceptor.getConfiguration().getClusterName());
+        this.emitter = new AMQPEmitter(radio, radio.getConfiguration().getAMQPExchangeName());
     }
     
     @Override
@@ -58,9 +59,10 @@ public class BufferProcessor implements EventHandler<MessageEvent> {
 
         RawMessage msg = event.getMessage();
         
-        LOG.debug("Writing message from {} to bus.", msg.getSourceInput());
+        LOG.debug("Writing message from {} to AMQP bus.", msg.getSourceInput());
 
         // Write message to AMQP broker.
+        emitter.write(msg.getPayload(), msg.getSourceInput().getRoutingKey());
     }
     
 }

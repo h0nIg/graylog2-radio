@@ -40,6 +40,9 @@ public class Configuration {
     @Parameter(value = "inputs_file", required = true)
     private String inputsFile = "/etc/graylog2-radio-inputs.conf";
     
+    @Parameter(value = "amqp_exchange_name", required = true)
+    private String amqpExchangeName;
+    
     @Parameter(value = "amqp_user", required = true)
     private String amqpUser = "guest";
     
@@ -66,6 +69,10 @@ public class Configuration {
     
     public String getInputsFile() {
         return inputsFile;
+    }
+    
+    public String getAMQPExchangeName() {
+        return amqpExchangeName;
     }
     
     public String getAMQPUser() {
