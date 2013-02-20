@@ -19,42 +19,11 @@
  */
 package org.graylog2.radio.inputs;
 
-import java.net.InetSocketAddress;
-
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
  */
-public class InputConfiguration {
-    
-    private final InetSocketAddress address;
-    private InputType type;
-    private String routingKey;
-    
-    public InputConfiguration(InetSocketAddress address, InputType type, String routingKey) {
-        this.address = address;
-        this.type = type;
-        this.routingKey = routingKey;
-    }
-    
-    public InetSocketAddress getAddress() {
-        return address;
-    }
-    
-    public InputType getType() {
-        return type;
-    }
-    
-    public String getRoutingKey() {
-        return routingKey;
-    }
-    
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(type).append(address).append("@").append(routingKey);
-        
-        return sb.toString();
-    }
+public enum InputType {
+ 
+    UDP, TCP
     
 }

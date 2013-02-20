@@ -25,9 +25,9 @@ import com.github.joschi.jadconfig.JadConfig;
 import com.github.joschi.jadconfig.RepositoryException;
 import com.github.joschi.jadconfig.ValidationException;
 import com.github.joschi.jadconfig.repositories.PropertiesRepository;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 import org.graylog2.radio.inputs.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,11 +77,11 @@ public class Main {
         }
         
         // Parse input configuration;
-        Set<InputConfiguration> inputs = Sets.newHashSet();
+        List<InputConfiguration> inputs = Lists.newArrayList();
         try {
             String inputDefinition = Tools.readFile(configuration.getInputsFile());
             inputs = InputConfigurationParser.fromString(inputDefinition);
-            LOG.info("Read {} initial inputs from {}", inputs.size(), configuration.getInputsFile());
+            LOG.info("Read {} initial inputs from {}", inputs.size(), configuration.getInputsFile());
         } catch (Exception e) {
             LOG.error("Could not read initial set of inputs. Terminating.", e);
             System.exit(1);

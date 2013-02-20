@@ -19,20 +19,55 @@
  */
 package org.graylog2.radio;
 
-import com.google.common.collect.Sets;
-import java.util.Set;
+import com.google.common.collect.Lists;
+import java.net.InetSocketAddress;
+import java.util.List;
 import org.graylog2.radio.inputs.InputConfiguration;
+import org.graylog2.radio.inputs.InputType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
  */
 public class InputConfigurationParser {
  
-    public static Set<InputConfiguration> fromString(String source) {
-        Set<InputConfiguration> configs = Sets.newHashSet();
+    private static final Logger LOG = LoggerFactory.getLogger(InputConfigurationParser.class);
+    
+    /**
+     * Parses an input configuration String (usually read from inputs.conf).
+     * Does this without much checking the values for validity. Expects a
+     * list of newline separated input definitions like this:
+     * 
+     *   udp logs1 0.0.0.0 22501
+     *   tcp logs3 0.0.0.0 22503
+     * 
+     * @param source The configuration String to read
+     * @return List of input configurations
+     */
+    public static List<InputConfiguration> fromString(String source) {
+        List<InputConfiguration> configs = Lists.newArrayList();
         
         for(String line : source.split("\n")) {
-            System.out.println("LINE: " + line);
+            try {
+                String[] parts = line.trim().replaceAll(" +", " ").split(" ");
+
+                if (parts.length != 4) {
+                    LOG.warn("Skipping invalid input config. Not consisting of 4 segments.");
+                    continue;
+                }
+
+                InputConfiguration config = new InputConfiguration(
+                        new InetSocketAddress(parts[2], Integer.parseInt(parts[3])),
+                        InputType.valueOf(parts[0].toUpperCase()),
+                        parts[1]
+                );
+                
+                configs.add(config);
+            } catch (Exception e) {
+                LOG.warn("Exception when trying to parse input config. Skipping.", e);
+                continue;
+            }
         }
         
         return configs;

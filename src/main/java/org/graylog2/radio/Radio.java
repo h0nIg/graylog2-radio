@@ -20,15 +20,19 @@
 package org.graylog2.radio;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.graylog2.radio.buffers.Buffer;
 import org.graylog2.radio.inputs.InputConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
  */
 public class Radio {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(Radio.class);
     
     private Configuration configuration;
     
@@ -40,13 +44,16 @@ public class Radio {
         buffer = new Buffer(this);
     }
     
-    public void initialize(Set<InputConfiguration> initialInputs) throws IOException {
+    public void initialize(List<InputConfiguration> initialInputs) throws IOException {
         // Initialize buffer.
-        
+        buffer.initialize();
         
         // Connect to AMQP broker.
         
         // Spawn inputs.
+        for (InputConfiguration input : initialInputs) {
+            LOG.info("Initializing input <{}>", input);
+        }
     }
     
     public void setConfiguration(Configuration configuration) {
