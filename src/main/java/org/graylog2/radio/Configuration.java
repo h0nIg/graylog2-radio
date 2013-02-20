@@ -61,8 +61,8 @@ public class Configuration {
     @Parameter(value = "processor_wait_strategy", required = true)
     private String processorWaitStrategy = "sleeping";
     
-    @Parameter(value = "processbuffer_processors", required = true, validator = PositiveIntegerValidator.class)
-    private int processBufferProcessors = 5;
+    @Parameter(value = "buffer_processors", required = true, validator = PositiveIntegerValidator.class)
+    private int bufferProcessors = 5;
     
     @Parameter(value = "ring_size", required = true, validator = PositiveIntegerValidator.class)
     private int ringSize = 1024;
@@ -122,7 +122,7 @@ public class Configuration {
     }
     
     public int getProcessBufferProcessors() {
-        return processBufferProcessors;
+        return bufferProcessors;
     }
 
 }

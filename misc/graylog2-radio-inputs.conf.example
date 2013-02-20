@@ -1,0 +1,3 @@
+udp routerlogs 0.0.0.0 12501
+udp systemlogs 0.0.0.0 12502
+tcp otherlogs 0.0.0.0 12503

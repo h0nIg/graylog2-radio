@@ -26,8 +26,12 @@ import com.github.joschi.jadconfig.RepositoryException;
 import com.github.joschi.jadconfig.ValidationException;
 import com.github.joschi.jadconfig.repositories.PropertiesRepository;
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.graylog2.radio.inputs.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +63,8 @@ public class Main {
         } else {
             root.setLevel(Level.INFO);
         }        
+        
+        savePidFile(cli.getPidFile());
         
         LOG.info("Loading configuration: " + cli.getConfigFile());
         
@@ -98,5 +104,28 @@ public class Main {
         }
         
     }
+    
+    private static void savePidFile(String pidFile) {
+
+        String pid = Tools.getPID();
+        Writer pidFileWriter = null;
+
+        try {
+            if (pid == null || pid.isEmpty() || pid.equals("unknown")) {
+                throw new Exception("Could not determine PID.");
+            }
+
+            pidFileWriter = new FileWriter(pidFile);
+            IOUtils.write(pid, pidFileWriter);
+        } catch (Exception e) {
+            LOG.error("Could not write PID file: " + e.getMessage(), e);
+            System.exit(1);
+        } finally {
+            IOUtils.closeQuietly(pidFileWriter);
+            // make sure to remove our pid when we exit
+            new File(pidFile).deleteOnExit();
+        }
+    }
+
     
 }

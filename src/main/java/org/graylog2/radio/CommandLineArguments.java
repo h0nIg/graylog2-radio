@@ -28,8 +28,14 @@ public class CommandLineArguments {
     
     public static final String STANDARD_CONFIG_FILE = "/etc/graylog2-radio.conf";
 
+    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    private static final String TMPDIR = System.getProperty("java.io.tmpdir", "/tmp");
+    
     @Parameter(names = {"-f", "--config-file"}, description = "Path to a specific config file")
     private String configFile;
+    
+    @Parameter(names = {"-p", "--pidfile"}, description = "File containing the PID of graylog2")
+    private String pidFile = TMPDIR + FILE_SEPARATOR + "graylog2-radio.pid";
     
     @Parameter(names = {"-d", "--debug"}, description = "Run in debug mode")
     private boolean debug = false;
@@ -43,6 +49,10 @@ public class CommandLineArguments {
         }
 
         return configFile;
+    }
+    
+    public String getPidFile() {
+        return pidFile;
     }
 
     public boolean isDebug() {

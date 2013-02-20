@@ -22,6 +22,7 @@ package org.graylog2.radio;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -45,6 +46,10 @@ public class Tools {
     
     public static int getUTCTimestamp() {
        return (int) (System.currentTimeMillis()/1000);
+    }
+    
+    public static String getPID() {
+        return ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
     }
     
 }

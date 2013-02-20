@@ -1,0 +1,12 @@
+inputs_file = /etc/graylog2-radio-inputs.conf
+
+amqp_exchange_name = logs
+
+amqp_user = guest
+amqp_pass = guest
+amqp_host = 127.0.0.1
+amqp_port = 5672
+
+processor_wait_strategy = blocking
+buffer_processors = 5
+ring_size = 1024
