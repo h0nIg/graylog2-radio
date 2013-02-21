@@ -110,7 +110,7 @@ public class Radio {
     }
     
     public synchronized void spawnInput(Input input) {
-        LOG.info("Spawning input {}", input);
+        LOG.info("Spawning input [{}]", input);
         activeInputs.add(input);
         inputThreadPool.submit((Runnable) input);
     }

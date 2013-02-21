@@ -52,7 +52,7 @@ public class InputConfiguration {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         
-        sb.append(type).append(address).append("@").append(routingKey);
+        sb.append(type).append(" ").append(address).append("@").append(routingKey);
         
         return sb.toString();
     }
