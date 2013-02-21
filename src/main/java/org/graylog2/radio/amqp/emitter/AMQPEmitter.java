@@ -20,7 +20,12 @@
 package org.graylog2.radio.amqp.emitter;
 
 import com.rabbitmq.client.Channel;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Meter;
+import com.yammer.metrics.core.Timer;
+import com.yammer.metrics.core.TimerContext;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import org.graylog2.radio.Radio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +41,18 @@ public class AMQPEmitter {
     private final String exchangeName;
     private final Radio radio;
     
+    private final Meter writtenMessages = Metrics.newMeter(AMQPEmitter.class, "WrittenMessages", "messages", TimeUnit.SECONDS);
+    private final Meter amqpConnects = Metrics.newMeter(AMQPEmitter.class, "AMQPConnects", "connects", TimeUnit.SECONDS);
+    private final Timer processTime = Metrics.newTimer(AMQPEmitter.class, "ProcessTimeMilliseconds", TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
+    
     public AMQPEmitter(Radio radio, String exchangeName) {
         this.radio = radio;
         this.exchangeName = exchangeName;
     }
     
     public void write(byte[] payload, String routingKey) throws Exception {
+        TimerContext tcx = processTime.time();
+        
         if (channel == null || !channel.isOpen() || channel.getConnection() == null || !channel.getConnection().isOpen()) {
             connect();
             LOG.info("Connected to target AMQP broker {}:{}/{}",
@@ -50,10 +61,16 @@ public class AMQPEmitter {
                     exchangeName);
         }
 
+        writtenMessages.mark();
+
         channel.basicPublish(exchangeName, routingKey, null, payload);
+        
+        tcx.stop();
     }
     
     private void connect() throws IOException {
+        amqpConnects.mark();
+        
         channel = radio.getBroker().createChannel();
         channel.exchangeDeclare(exchangeName, "topic", true);
     }

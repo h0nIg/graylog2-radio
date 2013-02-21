@@ -19,7 +19,12 @@
  */
 package org.graylog2.radio.inputs;
 
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Meter;
+import java.util.concurrent.TimeUnit;
 import org.graylog2.radio.Radio;
+import org.graylog2.radio.inputs.tcp.TCPInput;
+import org.graylog2.radio.inputs.udp.UDPInput;
 import org.graylog2.radio.messages.RawMessage;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -39,6 +44,10 @@ public class MessageDispatcher extends SimpleChannelHandler {
     private final Radio radio;
     private final InputConfiguration config;
     
+    private final Meter dispatchedMessages = Metrics.newMeter(MessageDispatcher.class, "DispatchedMessages", "messages", TimeUnit.SECONDS);
+    private final Meter incomingTcpMessages = Metrics.newMeter(TCPInput.class, "IncomingMessages", "messages", TimeUnit.SECONDS);
+    private final Meter incomingUdpMessages = Metrics.newMeter(UDPInput.class, "IncomingMessages", "messages", TimeUnit.SECONDS);
+    
     public MessageDispatcher(Radio radio, InputConfiguration config) {
         this.radio = radio;
         this.config = config;
@@ -53,6 +62,16 @@ public class MessageDispatcher extends SimpleChannelHandler {
         buffer.toByteBuffer().get(readable, buffer.readerIndex(), buffer.readableBytes());
         
         if (readable.length > 0) {
+            dispatchedMessages.mark();
+            
+            // Source input metrics. (doing that here instead of an own Netty pipeline step)
+            switch (config.getType()) {
+                case TCP:
+                    incomingTcpMessages.mark();
+                case UDP:
+                    incomingUdpMessages.mark();
+            }
+            
             // Write to AMQP.
             RawMessage msg = new RawMessage(readable, config);
             radio.getBuffer().insert(msg);

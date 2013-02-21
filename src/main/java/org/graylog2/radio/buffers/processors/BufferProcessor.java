@@ -20,6 +20,9 @@
 package org.graylog2.radio.buffers.processors;
 
 import com.lmax.disruptor.EventHandler;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Meter;
+import java.util.concurrent.TimeUnit;
 import org.graylog2.radio.Radio;
 import org.graylog2.radio.amqp.emitter.AMQPEmitter;
 import org.graylog2.radio.buffers.MessageEvent;
@@ -38,6 +41,8 @@ public class BufferProcessor implements EventHandler<MessageEvent> {
     private final long ordinal;
     private final long numberOfConsumers;
     
+    private final Meter handledMessages = Metrics.newMeter(BufferProcessor.class, "HandledMessages", "messages", TimeUnit.SECONDS);
+    
     private final AMQPEmitter emitter;
 
     public BufferProcessor(Radio radio, final long ordinal, final long numberOfConsumers) {
@@ -55,6 +60,7 @@ public class BufferProcessor implements EventHandler<MessageEvent> {
             return;
         }
         
+        handledMessages.mark();
         radio.bufferWatermark().decrementAndGet();
 
         RawMessage msg = event.getMessage();

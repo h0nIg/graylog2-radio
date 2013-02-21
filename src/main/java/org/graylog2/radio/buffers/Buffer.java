@@ -24,8 +24,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.lmax.disruptor.MultiThreadedClaimStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Meter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.graylog2.radio.Radio;
 import org.graylog2.radio.buffers.processors.BufferProcessor;
 import org.slf4j.Logger;
@@ -47,6 +50,9 @@ public class Buffer {
                 .setNameFormat("bufferprocessor-%d")
                 .build()
     );
+    
+    private final Meter incomingMessages = Metrics.newMeter(Buffer.class, "InsertedMessages", "messages", TimeUnit.SECONDS);
+    private final Meter rejectedMessages = Metrics.newMeter(Buffer.class, "RejectedMessages", "messages", TimeUnit.SECONDS);
 
     public Buffer(Radio radio) {
         this.radio = radio;
@@ -77,6 +83,7 @@ public class Buffer {
     
     public void insert(RawMessage message) throws BufferOutOfCapacityException {
         if (!hasCapacity()) {
+            rejectedMessages.mark();
             LOG.debug("Rejecting message, because I am full. Raise my size or add more processors.");
             throw new BufferOutOfCapacityException();
         }
@@ -86,6 +93,7 @@ public class Buffer {
         event.setMessage(message);
         ringBuffer.publish(sequence);
 
+        incomingMessages.mark();
         radio.bufferWatermark().incrementAndGet();
     }
 

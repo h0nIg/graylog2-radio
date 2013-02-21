@@ -92,7 +92,7 @@ public class Main {
             LOG.error("Could not read initial set of inputs. Terminating.", e);
             System.exit(1);
         }
-
+        
         Radio radio = new Radio();
         radio.setConfiguration(configuration);
         

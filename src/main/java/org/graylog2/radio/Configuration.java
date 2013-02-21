@@ -22,11 +22,14 @@ package org.graylog2.radio;
 import com.github.joschi.jadconfig.Parameter;
 import com.github.joschi.jadconfig.validators.InetPortValidator;
 import com.github.joschi.jadconfig.validators.PositiveIntegerValidator;
+import com.google.common.collect.Lists;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.YieldingWaitStrategy;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +75,33 @@ public class Configuration {
     
     @Parameter(value = "ring_size", required = true, validator = PositiveIntegerValidator.class)
     private int ringSize = 1024;
+    
+    @Parameter(value = "enable_graphite", required = false)
+    private boolean enableGraphite = false;
+
+    @Parameter(value = "graphite_carbon_host", required = false)
+    private String graphiteCarbonHost = "127.0.0.1";
+
+    @Parameter(value = "graphite_carbon_tcp_port", validator = InetPortValidator.class, required = false)
+    private int graphiteCarbonTcpPort = 2003;
+    
+    @Parameter(value = "graphite_prefix", required = false)
+    private String graphitePrefix = "graylog2-radio";
+
+    @Parameter(value = "enable_libratometrics", required = false)
+    private boolean enableLibratoMetrics = false;
+
+    @Parameter(value = "libratometrics_api_user", required = false)
+    private String libratometricsApiUser;
+
+    @Parameter(value = "libratometrics_api_token", required = false)
+    private String libratometricsApiToken;
+
+    @Parameter(value = "libratometrics_interval", validator = PositiveIntegerValidator.class, required = false)
+    private int libratometricsInterval = 60;
+
+    @Parameter(value = "libratometrics_source", required = false)
+    private String libratometricsSource = "gl2-radio";
     
     public String getInputsFile() {
         return inputsFile;
@@ -138,5 +168,40 @@ public class Configuration {
     public int getRestListenPort() {
         return restListenPort;
     }
+    
+    public boolean isEnableGraphite() {
+        return enableGraphite;
+    }
 
+    public String getGraphiteCarbonHost() {
+        return graphiteCarbonHost;
+    }
+
+    public int getGraphiteCarbonTcpPort() {
+        return graphiteCarbonTcpPort;
+    }
+    
+    public String getGraphitePrefix() {
+        return graphitePrefix;
+    }
+
+    public boolean isEnableLibratoMetrics() {
+        return enableLibratoMetrics;
+    }
+    
+    public String getLibratoMetricsAPIUser() {
+        return libratometricsApiUser;
+    }
+
+    public String getLibratoMetricsAPIToken() {
+        return libratometricsApiToken;
+    }
+
+    public int getLibratoMetricsInterval() {
+        return libratometricsInterval;
+    }
+
+    public String getLibratoMetricsSource() {
+        return libratometricsSource;
+    }
 }

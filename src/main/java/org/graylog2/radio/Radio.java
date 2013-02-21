@@ -21,17 +21,22 @@ package org.graylog2.radio;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.librato.metrics.LibratoReporter;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Meter;
+import com.yammer.metrics.reporting.GraphiteReporter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.ws.rs.core.UriBuilder;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -58,6 +63,8 @@ public class Radio {
     
     private AtomicInteger bufferWatermark = new AtomicInteger();
     
+    private final Meter inputSpawns = Metrics.newMeter(Radio.class, "SpawnedInputs", "messages", TimeUnit.SECONDS);
+    
     final ExecutorService inputThreadPool;
     final Set<Input> activeInputs = Sets.newHashSet();
     
@@ -71,6 +78,10 @@ public class Radio {
     }
     
     public void initialize(List<InputConfiguration> initialInputs) throws IOException {
+        // Initialize metrics.
+        if (configuration.isEnableGraphite()) { enableGraphiteReporter(); }
+        if (configuration.isEnableLibratoMetrics()) { enableLibratoReporter(); }
+        
         // Initialize buffer.
         buffer.initialize();
         
@@ -111,6 +122,8 @@ public class Radio {
     
     public synchronized void spawnInput(Input input) {
         LOG.info("Spawning input [{}]", input);
+        inputSpawns.mark();
+        
         activeInputs.add(input);
         inputThreadPool.submit((Runnable) input);
     }
@@ -137,6 +150,28 @@ public class Radio {
         }
         
         return brokerConnection;
+    }
+    
+    private void enableGraphiteReporter() {
+        GraphiteReporter.enable(
+                5,
+                TimeUnit.SECONDS,
+                configuration.getGraphiteCarbonHost(),
+                configuration.getGraphiteCarbonTcpPort(),
+                configuration.getGraphitePrefix()
+        );
+    }
+    
+    private void enableLibratoReporter() {
+        LibratoReporter.enable(
+                LibratoReporter.builder(
+                    configuration.getLibratoMetricsAPIUser(),
+                    configuration.getLibratoMetricsAPIToken(),
+                    configuration.getLibratoMetricsSource()
+                ),
+                configuration.getLibratoMetricsInterval(),
+                TimeUnit.SECONDS
+        );
     }
     
 }

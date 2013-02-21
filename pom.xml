@@ -76,6 +76,21 @@
       <artifactId>gson</artifactId>
       <version>2.2.2</version>
     </dependency>
+    <dependency>
+      <groupId>com.yammer.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.yammer.metrics</groupId>
+      <artifactId>metrics-graphite</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.librato.metrics</groupId>
+      <artifactId>metrics-librato</artifactId>
+      <version>2.1.2.4</version>
+    </dependency>
   </dependencies>
 
   <build>
