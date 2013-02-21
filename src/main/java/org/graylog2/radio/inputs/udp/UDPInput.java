@@ -82,4 +82,9 @@ public class UDPInput implements Runnable, Input {
         return startedAt;
     }
     
+    @Override
+    public String toString() {
+        return config.toString();
+    }
+    
 }

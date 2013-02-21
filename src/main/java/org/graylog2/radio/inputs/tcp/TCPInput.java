@@ -82,4 +82,9 @@ public class TCPInput implements Runnable, Input {
         return startedAt;
     }
     
+    @Override
+    public String toString() {
+        return config.toString();
+    }
+    
 }

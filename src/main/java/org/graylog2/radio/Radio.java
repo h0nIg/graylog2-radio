@@ -23,12 +23,18 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
+import com.sun.jersey.api.core.PackagesResourceConfig;
+import com.sun.jersey.api.core.ResourceConfig;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.ws.rs.core.UriBuilder;
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.graylog2.radio.buffers.Buffer;
 import org.graylog2.radio.inputs.InputConfiguration;
 import org.graylog2.radio.inputs.Input;
@@ -71,9 +77,14 @@ public class Radio {
         // Connect to AMQP broker.
         brokerConnection = getBroker();
         
+        // Start REST API.
+        URI restUri = UriBuilder.fromUri(configuration.getRestListenUri())
+                                .port(configuration.getRestListenPort()).build();
+        startRestServer(restUri);
+        LOG.info("Started REST API at <{}>", restUri);
+        
         // Spawn inputs.
         for (InputConfiguration config : initialInputs) {
-            LOG.info("Initializing input <{}>", config);
             try {
                 spawnInput(InputFactory.get(this, config));
             } catch(NoInputFoundException e) {
@@ -99,8 +110,19 @@ public class Radio {
     }
     
     public synchronized void spawnInput(Input input) {
+        LOG.info("Spawning input {}", input);
         activeInputs.add(input);
         inputThreadPool.submit((Runnable) input);
+    }
+    
+    public Set<Input> getActiveInputs() {
+        return activeInputs;
+    }
+    
+    private HttpServer startRestServer(URI restUri) throws IOException {
+        ResourceConfig rc = new PackagesResourceConfig("org.graylog2.radio.rest.resources");
+        rc.getProperties().put("radio", this);
+        return GrizzlyServerFactory.createHttpServer(restUri, rc);
     }
     
     public Connection getBroker() throws IOException {

@@ -55,6 +55,12 @@ public class Configuration {
     @Parameter(value = "amqp_port", required = true, validator = InetPortValidator.class)
     private int amqpPort = 5672;
     
+    @Parameter(value = "rest_listen_uri", required = true)
+    private String restListenUri = "http://127.0.0.1/";
+    
+    @Parameter(value = "rest_listen_port", required = true, validator = InetPortValidator.class)
+    private int restListenPort = 12888;
+    
     @Parameter(value = "udp_recvbuffer_sizes", required = true, validator = PositiveIntegerValidator.class)
     private int udpRecvBufferSizes = 1048576;
     
@@ -123,6 +129,14 @@ public class Configuration {
     
     public int getProcessBufferProcessors() {
         return bufferProcessors;
+    }
+    
+    public String getRestListenUri() {
+        return restListenUri;
+    }
+    
+    public int getRestListenPort() {
+        return restListenPort;
     }
 
 }
