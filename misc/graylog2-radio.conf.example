@@ -1,6 +1,8 @@
+# Documentation: http://support.torch.sh/help/kb/graylog2-server/using-graylog2-radio
+
 inputs_file = /etc/graylog2-radio-inputs.conf
 
-amqp_exchange_name = logs
+amqp_exchange_name = messages
 
 amqp_user = guest
 amqp_pass = guest
