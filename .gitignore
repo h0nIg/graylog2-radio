@@ -1,4 +1,5 @@
 target
+conf
 
 build_script/builds/*
 build_script/logs/*
