@@ -1,5 +1,9 @@
 target
 conf
 
+.classpath
+.project
+.settings
+
 build_script/builds/*
 build_script/logs/*
