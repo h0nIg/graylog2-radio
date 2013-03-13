@@ -99,7 +99,7 @@ public class Main {
         try {
             radio.initialize(inputs);
         } catch(IOException e) {
-            LOG.error("IOException on startup. Terminating.", e);
+            LOG.error("IOException on startup.", e);
             System.exit(1);
         }
         

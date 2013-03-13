@@ -85,8 +85,19 @@ public class Radio {
         // Initialize buffer.
         buffer.initialize();
         
-        // Connect to AMQP broker.
-        brokerConnection = getBroker();
+        // Initially connect to AMQP broker.
+        while (true) {
+            try {
+                brokerConnection = getBroker();
+                break;
+            } catch(IOException e) {
+                LOG.warn("Could not connect to AMQP broker. Retrying in 5 seconds.", e);
+                
+                try {
+                    Thread.sleep(5*1000);
+                } catch(InterruptedException ex) { /* */ }
+            }
+        }
         
         // Start REST API.
         URI restUri = UriBuilder.fromUri(configuration.getRestListenUri())
