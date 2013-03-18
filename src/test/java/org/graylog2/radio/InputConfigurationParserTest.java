@@ -4,12 +4,13 @@
  */
 package org.graylog2.radio;
 
-import java.net.InetSocketAddress;
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
+
 import org.graylog2.radio.inputs.InputConfiguration;
 import org.graylog2.radio.inputs.InputType;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

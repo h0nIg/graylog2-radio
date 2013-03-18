@@ -21,7 +21,6 @@ package org.graylog2.radio.inputs.udp;
 
 import org.graylog2.radio.Radio;
 import org.graylog2.radio.inputs.InputConfiguration;
-import org.graylog2.radio.inputs.InputType;
 import org.graylog2.radio.inputs.MessageDispatcher;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
