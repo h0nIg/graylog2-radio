@@ -23,5 +23,10 @@ package org.graylog2.radio.buffers;
  * @author Lennart Koopmann <lennart@torch.sh>
  */
 public class BufferOutOfCapacityException extends Exception {
+
+	/**
+	 * Re-generate if you modify the class structure.
+	 */
+	private static final long serialVersionUID = -936685412221869188L;
     
 }

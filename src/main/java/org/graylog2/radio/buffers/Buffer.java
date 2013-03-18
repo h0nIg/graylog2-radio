@@ -59,7 +59,7 @@ public class Buffer {
     }
 
     public void initialize() {
-        Disruptor disruptor = new Disruptor<MessageEvent>(
+        Disruptor<MessageEvent> disruptor = new Disruptor<MessageEvent>(
                 MessageEvent.EVENT_FACTORY,
                 executor,
                 new MultiThreadedClaimStrategy(radio.getConfiguration().getRingSize()),

@@ -23,5 +23,10 @@ package org.graylog2.radio.inputs;
  * @author Lennart Koopmann <lennart@torch.sh>
  */
 public class NoInputFoundException extends Exception {
+
+	/**
+	 * Re-generate if you modify the class structure.
+	 */
+	private static final long serialVersionUID = -7687787246596825352L;
     
 }
