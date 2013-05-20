@@ -5,5 +5,8 @@ conf
 .project
 .settings
 
+.idea
+*.iml
+
 build_script/builds/*
 build_script/logs/*

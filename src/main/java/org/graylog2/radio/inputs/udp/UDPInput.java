@@ -43,26 +43,23 @@ public class UDPInput implements Runnable, Input {
     private final Radio radio;
     private final InputConfiguration config;
     private int startedAt = 0;
-    
+
     public UDPInput(Radio radio, InputConfiguration config) {
         this.config = config;
         this.radio = radio;
     }
-    
+
     @Override
     public void run() {
         this.startedAt = Tools.getUTCTimestamp();
-        
+
         final ExecutorService workerThreadPool = Executors.newCachedThreadPool(
-                new ThreadFactoryBuilder()
-                .setNameFormat("input-udp-%d")
-                .build());
-        
+                new ThreadFactoryBuilder().setNameFormat("input-udp-%d").build());
+
         final ConnectionlessBootstrap bootstrap = new ConnectionlessBootstrap(new NioDatagramChannelFactory(workerThreadPool));
 
         bootstrap.setOption("receiveBufferSizePredictorFactory", new FixedReceiveBufferSizePredictorFactory(
-                radio.getConfiguration().getUdpRecvBufferSizes())
-        );
+                radio.getConfiguration().getUdpRecvBufferSizes()));
         bootstrap.setPipelineFactory(new UDPPipelineFactory(radio, config));
 
         try {
