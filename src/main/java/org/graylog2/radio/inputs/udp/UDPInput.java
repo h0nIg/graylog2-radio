@@ -24,8 +24,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.graylog2.radio.Radio;
 import org.graylog2.radio.Tools;
+import org.graylog2.radio.gelf.GELFChunkManager;
 import org.graylog2.radio.inputs.Input;
 import org.graylog2.radio.inputs.InputConfiguration;
+import org.graylog2.radio.inputs.MessageDispatcher;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
 import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
@@ -44,14 +46,28 @@ public class UDPInput implements Runnable, Input {
     private final InputConfiguration config;
     private int startedAt = 0;
 
+    private final GELFChunkManager chunkManager;
+    private final ExecutorService chunkManagerExecutor;
+
+    private final MessageDispatcher dispatcher;
+
     public UDPInput(Radio radio, InputConfiguration config) {
         this.config = config;
         this.radio = radio;
+
+        this.chunkManager = new GELFChunkManager();
+        this.chunkManagerExecutor = Executors.newSingleThreadExecutor();
+
+        this.dispatcher = new MessageDispatcher(this.radio, this.config, this.chunkManager);
+        chunkManager.setDispatcher(this.dispatcher);
     }
 
     @Override
     public void run() {
         this.startedAt = Tools.getUTCTimestamp();
+
+        // Start the chunk manager of this input.
+        chunkManagerExecutor.submit(chunkManager);
 
         final ExecutorService workerThreadPool = Executors.newCachedThreadPool(
                 new ThreadFactoryBuilder().setNameFormat("input-udp-%d").build());
@@ -60,7 +76,7 @@ public class UDPInput implements Runnable, Input {
 
         bootstrap.setOption("receiveBufferSizePredictorFactory", new FixedReceiveBufferSizePredictorFactory(
                 radio.getConfiguration().getUdpRecvBufferSizes()));
-        bootstrap.setPipelineFactory(new UDPPipelineFactory(radio, config));
+        bootstrap.setPipelineFactory(new UDPPipelineFactory(dispatcher));
 
         try {
             bootstrap.bind(config.getAddress());

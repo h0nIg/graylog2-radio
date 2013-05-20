@@ -20,6 +20,7 @@
 package org.graylog2.radio.inputs.udp;
 
 import org.graylog2.radio.Radio;
+import org.graylog2.radio.gelf.GELFChunkManager;
 import org.graylog2.radio.inputs.InputConfiguration;
 import org.graylog2.radio.inputs.InputType;
 import org.graylog2.radio.inputs.MessageDispatcher;
@@ -32,17 +33,15 @@ import org.jboss.netty.channel.Channels;
  */
 public class UDPPipelineFactory implements ChannelPipelineFactory {
 
-    private final Radio radio;
-    private final InputConfiguration config;
+    private final MessageDispatcher dispatcher;
 
-    public UDPPipelineFactory(Radio radio, InputConfiguration config) {
-        this.radio = radio;
-        this.config = config;
+    public UDPPipelineFactory(MessageDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
     @Override
     public ChannelPipeline getPipeline() throws Exception {
-        return Channels.pipeline(new MessageDispatcher(radio, config));
+        return Channels.pipeline(dispatcher);
     }
     
 }

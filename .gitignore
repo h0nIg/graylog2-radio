@@ -8,5 +8,8 @@ conf
 .idea
 *.iml
 
+misc/graylog2-radio.conf
+misc/graylog2-radio-inputs.conf
+
 build_script/builds/*
 build_script/logs/*
