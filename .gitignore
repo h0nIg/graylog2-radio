@@ -8,6 +8,8 @@ conf
 .idea
 *.iml
 
+.DS_Store
+
 misc/graylog2-radio.conf
 misc/graylog2-radio-inputs.conf
 
