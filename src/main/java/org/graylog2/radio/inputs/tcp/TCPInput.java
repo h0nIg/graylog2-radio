@@ -40,11 +40,13 @@ public class TCPInput implements Runnable, Input {
 
     private final Radio radio;
     private final InputConfiguration config;
+    private final boolean useNulSeparator;
     private int startedAt = 0;
     
-    public TCPInput(Radio radio, InputConfiguration config) {
+    public TCPInput(Radio radio, InputConfiguration config, boolean useNulSeparator) {
         this.config = config;
         this.radio = radio;
+        this.useNulSeparator = useNulSeparator;
     }
     
     @Override
@@ -63,7 +65,7 @@ public class TCPInput implements Runnable, Input {
             new NioServerSocketChannelFactory(bossThreadPool, workerThreadPool)
         );
 
-        tcpBootstrap.setPipelineFactory(new TCPPipelineFactory(radio, config));
+        tcpBootstrap.setPipelineFactory(new TCPPipelineFactory(radio, config, useNulSeparator));
 
         try {
             tcpBootstrap.bind(config.getAddress());

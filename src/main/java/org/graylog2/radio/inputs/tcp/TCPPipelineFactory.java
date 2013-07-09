@@ -21,8 +21,8 @@ package org.graylog2.radio.inputs.tcp;
 
 import org.graylog2.radio.Radio;
 import org.graylog2.radio.inputs.InputConfiguration;
-import org.graylog2.radio.inputs.InputType;
 import org.graylog2.radio.inputs.MessageDispatcher;
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
@@ -36,16 +36,25 @@ public class TCPPipelineFactory implements ChannelPipelineFactory {
 
     private final Radio radio;
     private final InputConfiguration config;
+    private final boolean useNulSeparator;
 
-    public TCPPipelineFactory(Radio radio, InputConfiguration config) {
+    public TCPPipelineFactory(Radio radio, InputConfiguration config, boolean useNulSeparator) {
         this.radio = radio;
         this.config = config;
+        this.useNulSeparator = useNulSeparator;
     }
 
     @Override
     public ChannelPipeline getPipeline() throws Exception {
+        ChannelBuffer[] delimiter;
+        if (useNulSeparator) {
+            delimiter = Delimiters.nulDelimiter();
+        } else {
+            delimiter = Delimiters.lineDelimiter();
+        }
+
         ChannelPipeline p = Channels.pipeline();
-        p.addLast("framer", new DelimiterBasedFrameDecoder(2 * 1024 * 1024, Delimiters.nulDelimiter()));
+        p.addLast("framer", new DelimiterBasedFrameDecoder(2 * 1024 * 1024, delimiter));
         p.addLast("handler", new MessageDispatcher(radio, config));
         return p;
     }

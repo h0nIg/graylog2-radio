@@ -34,7 +34,9 @@ public class InputFactory {
             case UDP:
                 return new UDPInput(radio, config);
             case TCP:
-                return new TCPInput(radio, config);
+                return new TCPInput(radio, config, false);
+            case TCP_NUL:
+                return new TCPInput(radio, config, true);
         }
         
         throw new NoInputFoundException();
