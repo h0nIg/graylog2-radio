@@ -24,6 +24,6 @@ package org.graylog2.radio.inputs;
  */
 public enum InputType {
  
-    UDP, TCP, TCP_NUL
+    UDP, TCP_SYSLOG, TCP_GELF
 
 }

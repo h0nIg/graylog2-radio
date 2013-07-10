@@ -33,9 +33,9 @@ public class InputFactory {
         switch(config.getType()) {
             case UDP:
                 return new UDPInput(radio, config);
-            case TCP:
+            case TCP_SYSLOG:
                 return new TCPInput(radio, config, false);
-            case TCP_NUL:
+            case TCP_GELF:
                 return new TCPInput(radio, config, true);
         }
         

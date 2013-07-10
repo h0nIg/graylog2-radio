@@ -32,7 +32,7 @@ public class InputConfigurationParserTest {
         assertEquals("/127.0.0.1:22502", inputs.get(1).getAddress().toString());
         assertEquals("logs2", inputs.get(1).getRoutingKey());
         
-        assertEquals(InputType.TCP, inputs.get(2).getType());
+        assertEquals(InputType.TCP_SYSLOG, inputs.get(2).getType());
         assertEquals("localhost/127.0.0.1:22503", inputs.get(2).getAddress().toString());
         assertEquals("logs3", inputs.get(2).getRoutingKey());
     }
@@ -80,7 +80,7 @@ public class InputConfigurationParserTest {
         assertEquals("/0.0.0.0:22501", inputs.get(0).getAddress().toString());
         assertEquals("logs1", inputs.get(0).getRoutingKey());
         
-        assertEquals(InputType.TCP, inputs.get(1).getType());
+        assertEquals(InputType.TCP_SYSLOG, inputs.get(1).getType());
         assertEquals("localhost/127.0.0.1:22503", inputs.get(1).getAddress().toString());
         assertEquals("logs3", inputs.get(1).getRoutingKey());
     }

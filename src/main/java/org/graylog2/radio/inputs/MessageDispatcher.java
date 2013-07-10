@@ -80,7 +80,7 @@ public class MessageDispatcher extends SimpleChannelHandler {
 
             // Source input metrics. (doing that here instead of an own Netty pipeline step)
             switch (config.getType()) {
-                case TCP:
+                case TCP_SYSLOG:
                     incomingTcpMessages.mark();
                 case UDP:
                     incomingUdpMessages.mark();
