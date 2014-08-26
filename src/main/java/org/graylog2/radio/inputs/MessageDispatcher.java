@@ -105,7 +105,7 @@ public class MessageDispatcher extends SimpleChannelHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        LOG.error("Could not handle message.", e);
+        LOG.error("Could not handle message.", e.getCause());
     }
     
 }

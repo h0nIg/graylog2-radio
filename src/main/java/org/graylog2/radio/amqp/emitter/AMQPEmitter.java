@@ -52,27 +52,37 @@ public class AMQPEmitter {
     
     public void write(byte[] payload, String routingKey) throws Exception {
         TimerContext tcx = processTime.time();
-        
-        if (channel == null || !channel.isOpen() || channel.getConnection() == null || !channel.getConnection().isOpen()) {
-            connect();
-            LOG.info("Connected to target AMQP broker {}:{}/{}",
-                    radio.getConfiguration().getAMQPHost(),
-                    radio.getConfiguration().getAMQPPort(),
-                    exchangeName);
+
+        while (true) {
+            try {
+                if (channel == null || !channel.isOpen() || channel.getConnection() == null || !channel.getConnection().isOpen()) {
+                    connect();
+                    LOG.info("Connected to target AMQP broker {}:{}/{}",
+                            radio.getConfiguration().getAMQPHost(),
+                            radio.getConfiguration().getAMQPPort(),
+                            exchangeName);
+                }
+
+                writtenMessages.mark();
+
+                channel.basicPublish(exchangeName, routingKey, null, payload);
+                channel.waitForConfirms();
+
+                break;
+            } catch (Exception e) {
+                LOG.info("Error while sending message to AMQP broker", e);
+
+                continue;
+            }
         }
 
-        writtenMessages.mark();
-
-        channel.basicPublish(exchangeName, routingKey, null, payload);
-        
         tcx.stop();
     }
     
     private void connect() throws IOException {
         amqpConnects.mark();
-        
+
         channel = radio.getBroker().createChannel();
-        channel.exchangeDeclare(exchangeName, "topic", true);
+        channel.confirmSelect();
     }
-    
 }
